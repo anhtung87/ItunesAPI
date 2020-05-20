@@ -18,4 +18,6 @@ struct Item: Codable {
   let trackName: String?
   let collectionName: String?
   let artworkUrl100: String?
+  let trackPrice: Float?
+  let previewUrl: String?
 }

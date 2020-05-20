@@ -10,7 +10,21 @@ import UIKit
 
 class CollectionViewCell: UICollectionViewCell {
   
-  var apiData: Item?
+  var apiData: Item? {
+    didSet {
+      if let data = apiData {
+        nameLabel.text = data.trackName
+        
+        guard let url = URL(string: data.artworkUrl100 ?? "") else { return }
+        do {
+          let dataImage = try Data(contentsOf: url)
+          bookImageView.image = UIImage(data: dataImage)
+        } catch {
+          print(error.localizedDescription)
+        }
+      }
+    }
+  }
   
   var nameLabel: UILabel = {
     let label = UILabel()
@@ -22,6 +36,7 @@ class CollectionViewCell: UICollectionViewCell {
   
   var bookImageView: UIImageView = {
     let imageView = UIImageView()
+    imageView.translatesAutoresizingMaskIntoConstraints = false
     imageView.image = UIImage(contentsOfFile: "")
     return imageView
   }()
@@ -41,7 +56,7 @@ class CollectionViewCell: UICollectionViewCell {
   
   func addComponent() {
     self.addSubview(bookImageView)
-//    self.addSubview(nameLabel)
+    self.addSubview(nameLabel)
   }
   
   func setupLayout() {
@@ -50,37 +65,11 @@ class CollectionViewCell: UICollectionViewCell {
     bookImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -8).isActive = true
     bookImageView.heightAnchor.constraint(equalTo: bookImageView.widthAnchor, multiplier: 1).isActive = true
   
-//    nameLabel.topAnchor.constraint(equalTo: bookImageView.bottomAnchor, constant: 8).isActive = true
-//    nameLabel.leadingAnchor.constraint(equalTo: bookImageView.leadingAnchor).isActive = true
-//    nameLabel.trailingAnchor.constraint(equalTo: bookImageView.trailingAnchor).isActive = true
-//    nameLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -8).isActive = true
+    nameLabel.topAnchor.constraint(equalTo: bookImageView.bottomAnchor, constant: 8).isActive = true
+    nameLabel.leadingAnchor.constraint(equalTo: bookImageView.leadingAnchor).isActive = true
+    nameLabel.trailingAnchor.constraint(equalTo: bookImageView.trailingAnchor).isActive = true
+    nameLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -8).isActive = true
   }
   
-  func fetchImage(from urlString: String, completionHandler: @escaping (_ data: Data?) -> ()) {
-    let session = URLSession.shared
-      let url = URL(string: urlString)
-          
-      let dataTask = session.dataTask(with: url!) { (data, response, error) in
-          if error != nil {
-              print("Error fetching the image! 😢")
-              completionHandler(nil)
-          } else {
-              completionHandler(data)
-          }
-      }
-          
-      dataTask.resume()
-  }
-  
-  func setImageToImageView() {
-    fetchImage(from: apiData?.artworkUrl100 ?? "") { (imageData) in
-          if let data = imageData {
-              DispatchQueue.main.async {
-                  self.bookImageView.image = UIImage(data: data)
-              }
-          } else {
-              print("Error loading image");
-          }
-      }
-  }
+
 }

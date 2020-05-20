@@ -35,11 +35,17 @@ class ViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     // Do any additional setup after loading the view.
+    view.backgroundColor = .white
     self.addComponent()
     self.setupLayout()
     self.configCollectionView()
     self.configSearchBar()
     self.fetchRequest("")
+    
+    self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default) //UIImage.init(named: "transparent.png")
+    self.navigationController?.navigationBar.shadowImage = UIImage()
+    self.navigationController?.navigationBar.isTranslucent = true
+    self.navigationController?.view.backgroundColor = .clear
   }
   
   func addComponent() {
@@ -87,7 +93,6 @@ class ViewController: UIViewController {
       if response.statusCode == 200 {
         do {
           let recieveData = try JSONDecoder().decode(Result.self, from: data)
-          print(recieveData)
           DispatchQueue.main.async {
             strongSelf.apiData = recieveData.results
             strongSelf.collectionView.reloadData()
@@ -109,8 +114,6 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! CollectionViewCell
     cell.apiData = apiData?[indexPath.row]
-    cell.nameLabel.text = cell.apiData?.trackName
-    cell.setImageToImageView()
     return cell
   }
   
@@ -126,6 +129,12 @@ extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, 
   // hàm trả về khoảng cách giữa 2 item (tương tự 2 cột)
   func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
       return 8
+  }
+  
+  func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    let destinationVC = DetailViewController()
+    destinationVC.detailData = apiData![indexPath.row]
+    navigationController?.pushViewController(destinationVC, animated: true)
   }
 }
 
